@@ -1,19 +1,14 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Image, Copy, Eye } from 'lucide-react';
+import { Image, Copy, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface PixelTrackerProps {
-  onAccessSimulated: (type: 'link' | 'pixel') => void;
-}
-
-const PixelTracker: React.FC<PixelTrackerProps> = ({ onAccessSimulated }) => {
-  const [pixelVisible, setPixelVisible] = useState(false);
+const PixelTracker: React.FC = () => {
   const { toast } = useToast();
 
-  const pixelUrl = 'http://localhost:3000/pixel.png';
+  const pixelUrl = `${window.location.origin}/pixel.png`;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -24,10 +19,8 @@ const PixelTracker: React.FC<PixelTrackerProps> = ({ onAccessSimulated }) => {
     });
   };
 
-  const loadPixel = () => {
-    onAccessSimulated('pixel');
-    setPixelVisible(true);
-    setTimeout(() => setPixelVisible(false), 3000);
+  const testPixel = () => {
+    window.open(pixelUrl, '_blank');
   };
 
   return (
@@ -54,26 +47,18 @@ const PixelTracker: React.FC<PixelTrackerProps> = ({ onAccessSimulated }) => {
             Copiar URL
           </Button>
           <Button
-            onClick={loadPixel}
+            onClick={testPixel}
             className="flex-1 bg-purple-600 hover:bg-purple-700"
           >
-            <Eye className="mr-2 h-4 w-4" />
+            <ExternalLink className="mr-2 h-4 w-4" />
             Testar Pixel
           </Button>
         </div>
 
-        {pixelVisible && (
-          <div className="bg-green-900 border border-green-600 p-3 rounded">
-            <p className="text-green-300 text-sm">
-              ✅ Pixel carregado! Dados capturados com sucesso.
-            </p>
-          </div>
-        )}
-
         <div className="text-gray-400 text-xs space-y-1">
           <p>• Use este pixel em emails ou páginas web</p>
           <p>• Completamente invisível para o usuário</p>
-          <p>• Captura os mesmos dados que o link</p>
+          <p>• Captura dados REAIS quando acessado</p>
         </div>
       </CardContent>
     </Card>

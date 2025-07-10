@@ -9,10 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 
 interface LinkGeneratorProps {
   onBack: () => void;
-  onAccessSimulated: (type: 'link' | 'pixel', linkId?: string) => void;
 }
 
-const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack, onAccessSimulated }) => {
+const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack }) => {
   const [linkId, setLinkId] = useState('');
   const [redirectUrl, setRedirectUrl] = useState('https://google.com');
   const { toast } = useToast();
@@ -29,6 +28,13 @@ const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack, onAccessSimulated
   const generateLink = () => {
     const newId = generateRandomId();
     setLinkId(newId);
+    
+    // Salvar a URL de redirecionamento associada ao linkId
+    const savedLinks = localStorage.getItem('iplogger-links');
+    const links = savedLinks ? JSON.parse(savedLinks) : {};
+    links[newId] = redirectUrl;
+    localStorage.setItem('iplogger-links', JSON.stringify(links));
+    
     toast({
       title: "Link Gerado!",
       description: "Seu link de rastreamento foi criado com sucesso.",
@@ -44,15 +50,13 @@ const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack, onAccessSimulated
     });
   };
 
-  const simulateClick = () => {
-    onAccessSimulated('link', linkId);
-    // Simular redirecionamento
-    setTimeout(() => {
-      window.open(redirectUrl, '_blank');
-    }, 1000);
+  const testLink = () => {
+    if (linkId) {
+      window.open(`${window.location.origin}/r/${linkId}`, '_blank');
+    }
   };
 
-  const trackingUrl = linkId ? `http://localhost:3000/r/${linkId}` : '';
+  const trackingUrl = linkId ? `${window.location.origin}/r/${linkId}` : '';
 
   return (
     <div className="min-h-screen p-4">
@@ -124,7 +128,7 @@ const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack, onAccessSimulated
                   Copiar
                 </Button>
                 <Button
-                  onClick={simulateClick}
+                  onClick={testLink}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
                   <ExternalLink className="mr-2 h-4 w-4" />
@@ -144,7 +148,7 @@ const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack, onAccessSimulated
             <p>1. Configure a URL de redirecionamento</p>
             <p>2. Clique em "Gerar Novo Link"</p>
             <p>3. Compartilhe o link gerado</p>
-            <p>4. Quando alguém clicar, os dados serão capturados</p>
+            <p>4. Quando alguém clicar, os dados REAIS serão capturados</p>
             <p>5. O usuário será redirecionado automaticamente</p>
           </CardContent>
         </Card>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,35 +36,9 @@ const Index = () => {
     }
   }, []);
 
-  // Salvar dados no localStorage
-  const saveData = (data: AccessData[]) => {
-    localStorage.setItem('iplogger-data', JSON.stringify(data));
-    setAccessData(data);
-  };
-
-  // Simular captura de dados de acesso
-  const simulateAccess = (type: 'link' | 'pixel', linkId?: string) => {
-    const newAccess: AccessData = {
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      ip: `192.168.1.${Math.floor(Math.random() * 255)}`, // IP simulado
-      userAgent: navigator.userAgent,
-      referrer: document.referrer || 'Direct',
-      type,
-      linkId
-    };
-
-    const updatedData = [...accessData, newAccess];
-    saveData(updatedData);
-    
-    toast({
-      title: "Acesso Capturado!",
-      description: `Novo acesso ${type === 'link' ? 'via link' : 'via pixel'} registrado.`,
-    });
-  };
-
   const clearData = () => {
     localStorage.removeItem('iplogger-data');
+    localStorage.removeItem('iplogger-links');
     setAccessData([]);
     toast({
       title: "Dados Limpos",
@@ -73,12 +46,30 @@ const Index = () => {
     });
   };
 
+  // Atualizar dados periodicamente para mostrar novos acessos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const savedData = localStorage.getItem('iplogger-data');
+      if (savedData) {
+        try {
+          const newData = JSON.parse(savedData);
+          if (newData.length !== accessData.length) {
+            setAccessData(newData);
+          }
+        } catch (error) {
+          console.error('Erro ao atualizar dados:', error);
+        }
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [accessData.length]);
+
   if (activeTab === 'generate') {
     return (
       <div className="min-h-screen bg-gray-900 text-white">
         <LinkGenerator 
           onBack={() => setActiveTab('home')} 
-          onAccessSimulated={simulateAccess}
         />
       </div>
     );
@@ -156,7 +147,7 @@ const Index = () => {
         <Separator className="bg-gray-700" />
 
         {/* Pixel Tracker */}
-        <PixelTracker onAccessSimulated={simulateAccess} />
+        <PixelTracker />
 
         {/* Recent Activity */}
         {accessData.length > 0 && (
