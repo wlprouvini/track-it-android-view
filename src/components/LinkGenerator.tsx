@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Copy, Link, RefreshCw, ExternalLink, Camera, Wifi } from 'lucide-react';
+import { ArrowLeft, Copy, Link, RefreshCw, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface LinkGeneratorProps {
@@ -14,7 +14,6 @@ interface LinkGeneratorProps {
 const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack }) => {
   const [linkId, setLinkId] = useState('');
   const [redirectUrl, setRedirectUrl] = useState('https://google.com');
-  const [linkType, setLinkType] = useState<'ip' | 'camera'>('ip');
   const { toast } = useToast();
 
   const generateRandomId = () => {
@@ -30,18 +29,17 @@ const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack }) => {
     const newId = generateRandomId();
     setLinkId(newId);
     
-    // Salvar a URL de redirecionamento e tipo associado ao linkId
+    // Salvar a URL de redirecionamento associada ao linkId
     const savedLinks = localStorage.getItem('iplogger-links');
     const links = savedLinks ? JSON.parse(savedLinks) : {};
     links[newId] = {
-      redirectUrl,
-      type: linkType
+      redirectUrl
     };
     localStorage.setItem('iplogger-links', JSON.stringify(links));
     
     toast({
       title: "Link Gerado!",
-      description: `Seu link de rastreamento ${linkType === 'camera' ? 'com câmera' : 'de IP'} foi criado com sucesso.`,
+      description: "Seu link de rastreamento de IP foi criado com sucesso.",
     });
   };
 
@@ -75,41 +73,8 @@ const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack }) => {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-xl font-bold text-white">Gerar Link</h1>
+          <h1 className="text-xl font-bold text-white">Gerar Link de IP</h1>
         </div>
-
-        {/* Link Type Selection */}
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Tipo de Rastreamento</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex space-x-2">
-              <Button
-                onClick={() => setLinkType('ip')}
-                variant={linkType === 'ip' ? 'default' : 'outline'}
-                className={`flex-1 ${linkType === 'ip' ? 'bg-blue-600 hover:bg-blue-700' : 'border-gray-600 text-gray-300'}`}
-              >
-                <Wifi className="mr-2 h-4 w-4" />
-                Link IP
-              </Button>
-              <Button
-                onClick={() => setLinkType('camera')}
-                variant={linkType === 'camera' ? 'default' : 'outline'}
-                className={`flex-1 ${linkType === 'camera' ? 'bg-purple-600 hover:bg-purple-700' : 'border-gray-600 text-gray-300'}`}
-              >
-                <Camera className="mr-2 h-4 w-4" />
-                Câmera
-              </Button>
-            </div>
-            <div className="text-sm text-gray-400">
-              {linkType === 'ip' 
-                ? 'Captura apenas dados de IP e navegador'
-                : 'Captura foto da câmera frontal + dados de IP'
-              }
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Configuration */}
         <Card className="bg-gray-800 border-gray-700">
@@ -148,17 +113,13 @@ const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack }) => {
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center space-x-2">
-                {linkType === 'camera' ? (
-                  <Camera className="h-5 w-5 text-purple-400" />
-                ) : (
-                  <Wifi className="h-5 w-5 text-blue-400" />
-                )}
+                <Link className="h-5 w-5 text-blue-400" />
                 <span>Link de Rastreamento</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="bg-gray-900 p-3 rounded border border-gray-600">
-                <code className={`${linkType === 'camera' ? 'text-purple-400' : 'text-green-400'} text-sm break-all`}>
+                <code className="text-green-400 text-sm break-all">
                   {trackingUrl}
                 </code>
               </div>
@@ -189,19 +150,11 @@ const LinkGenerator: React.FC<LinkGeneratorProps> = ({ onBack }) => {
             <CardTitle className="text-white">Como Usar</CardTitle>
           </CardHeader>
           <CardContent className="text-gray-300 text-sm space-y-2">
-            <p>1. Escolha o tipo: Link IP ou Câmera</p>
-            <p>2. Configure a URL de redirecionamento</p>
-            <p>3. Clique em "Gerar Novo Link"</p>
-            <p>4. Compartilhe o link gerado</p>
-            {linkType === 'camera' ? (
-              <>
-                <p>5. Quando alguém clicar, a câmera será ativada automaticamente</p>
-                <p>6. Foto será capturada e salva junto com os dados</p>
-              </>
-            ) : (
-              <p>5. Quando alguém clicar, os dados REAIS serão capturados</p>
-            )}
-            <p>7. O usuário será redirecionado automaticamente</p>
+            <p>1. Configure a URL de redirecionamento</p>
+            <p>2. Clique em "Gerar Novo Link"</p>
+            <p>3. Compartilhe o link gerado</p>
+            <p>4. Quando alguém clicar, os dados de IP serão capturados</p>
+            <p>5. O usuário será redirecionado automaticamente</p>
           </CardContent>
         </Card>
       </div>

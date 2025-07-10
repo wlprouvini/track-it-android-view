@@ -98,7 +98,7 @@ const Index = () => {
             <Smartphone className="h-8 w-8 text-blue-400" />
             <h1 className="text-2xl font-bold">Mini IPLogger</h1>
           </div>
-          <p className="text-gray-400">Rastreamento de acessos offline</p>
+          <p className="text-gray-400">Rastreamento de IP offline</p>
         </div>
 
         {/* Status Card */}
@@ -167,12 +167,8 @@ const Index = () => {
                     <div className="flex items-center space-x-2">
                       <Monitor className="h-4 w-4 text-gray-400" />
                       <span className="text-gray-300">
-                        {access.type === 'pixel' ? 'Pixel' : 
-                         access.linkType === 'camera' ? 'Câmera' : 'Link'} - {access.ip}
+                        {access.type === 'pixel' ? 'Pixel' : 'Link'} - {access.ip}
                       </span>
-                      {access.photo && (
-                        <span className="text-purple-400 text-xs">📸</span>
-                      )}
                     </div>
                     <span className="text-gray-500">
                       {new Date(access.timestamp).toLocaleTimeString()}
