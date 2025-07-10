@@ -1,0 +1,83 @@
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Image, Copy, Eye } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface PixelTrackerProps {
+  onAccessSimulated: (type: 'link' | 'pixel') => void;
+}
+
+const PixelTracker: React.FC<PixelTrackerProps> = ({ onAccessSimulated }) => {
+  const [pixelVisible, setPixelVisible] = useState(false);
+  const { toast } = useToast();
+
+  const pixelUrl = 'http://localhost:3000/pixel.png';
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copiado!",
+        description: "URL do pixel copiada para a área de transferência.",
+      });
+    });
+  };
+
+  const loadPixel = () => {
+    onAccessSimulated('pixel');
+    setPixelVisible(true);
+    setTimeout(() => setPixelVisible(false), 3000);
+  };
+
+  return (
+    <Card className="bg-gray-800 border-gray-700">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center space-x-2">
+          <Image className="h-5 w-5 text-purple-400" />
+          <span>Pixel Invisível</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="bg-gray-900 p-3 rounded border border-gray-600">
+          <code className="text-purple-400 text-sm break-all">
+            {pixelUrl}
+          </code>
+        </div>
+
+        <div className="flex space-x-2">
+          <Button
+            onClick={() => copyToClipboard(pixelUrl)}
+            className="flex-1 bg-gray-700 hover:bg-gray-600"
+          >
+            <Copy className="mr-2 h-4 w-4" />
+            Copiar URL
+          </Button>
+          <Button
+            onClick={loadPixel}
+            className="flex-1 bg-purple-600 hover:bg-purple-700"
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            Testar Pixel
+          </Button>
+        </div>
+
+        {pixelVisible && (
+          <div className="bg-green-900 border border-green-600 p-3 rounded">
+            <p className="text-green-300 text-sm">
+              ✅ Pixel carregado! Dados capturados com sucesso.
+            </p>
+          </div>
+        )}
+
+        <div className="text-gray-400 text-xs space-y-1">
+          <p>• Use este pixel em emails ou páginas web</p>
+          <p>• Completamente invisível para o usuário</p>
+          <p>• Captura os mesmos dados que o link</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default PixelTracker;
