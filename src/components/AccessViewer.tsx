@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trash2, Monitor, Smartphone, Globe, Camera, Wifi, Eye, X } from 'lucide-react';
+import { ArrowLeft, Trash2, Monitor, Smartphone, Globe, Camera, Wifi, Eye, X, Receipt } from 'lucide-react';
 
 interface AccessData {
   id: string;
@@ -11,10 +10,11 @@ interface AccessData {
   ip: string;
   userAgent: string;
   referrer: string;
-  type: 'link' | 'pixel';
+  type: 'link' | 'pixel' | 'receipt';
   linkId?: string;
   linkType?: 'ip' | 'camera';
   photo?: string;
+  receiptId?: string;
 }
 
 interface AccessViewerProps {
@@ -37,6 +37,9 @@ const AccessViewer: React.FC<AccessViewerProps> = ({ accessData, onBack, onClear
     if (access.type === 'pixel') {
       return <Globe className="h-4 w-4 text-purple-400" />;
     }
+    if (access.type === 'receipt') {
+      return <Receipt className="h-4 w-4 text-green-400" />;
+    }
     if (access.linkType === 'camera') {
       return <Camera className="h-4 w-4 text-purple-400" />;
     }
@@ -45,6 +48,7 @@ const AccessViewer: React.FC<AccessViewerProps> = ({ accessData, onBack, onClear
 
   const getAccessTypeLabel = (access: AccessData) => {
     if (access.type === 'pixel') return 'Pixel';
+    if (access.type === 'receipt') return 'Comprovante';
     if (access.linkType === 'camera') return 'Câmera';
     return 'Link IP';
   };
@@ -93,7 +97,7 @@ const AccessViewer: React.FC<AccessViewerProps> = ({ accessData, onBack, onClear
           {/* Stats */}
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="pt-6">
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-4 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-white">{accessData.length}</div>
                   <div className="text-sm text-gray-400">Total</div>
@@ -103,6 +107,12 @@ const AccessViewer: React.FC<AccessViewerProps> = ({ accessData, onBack, onClear
                     {accessData.filter(a => a.type === 'link' && a.linkType !== 'camera').length}
                   </div>
                   <div className="text-sm text-gray-400">Link IP</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-400">
+                    {accessData.filter(a => a.type === 'receipt').length}
+                  </div>
+                  <div className="text-sm text-gray-400">Comprovante</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-purple-400">
@@ -172,10 +182,15 @@ const AccessViewer: React.FC<AccessViewerProps> = ({ accessData, onBack, onClear
                         <span className="font-semibold">Origem:</span> {access.referrer}
                       </div>
 
-                      {/* Link ID */}
+                      {/* Link ID or Receipt ID */}
                       {access.linkId && (
                         <div className="text-xs text-gray-500">
                           <span className="font-semibold">Link ID:</span> {access.linkId}
+                        </div>
+                      )}
+                      {access.receiptId && (
+                        <div className="text-xs text-gray-500">
+                          <span className="font-semibold">Comprovante ID:</span> {access.receiptId}
                         </div>
                       )}
                     </div>

