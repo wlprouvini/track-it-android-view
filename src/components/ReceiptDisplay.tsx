@@ -7,6 +7,7 @@ interface ReceiptData {
   pixKey: string;
   senderName: string;
   amount: number;
+  bank: string;
   createdAt: string;
 }
 
@@ -23,6 +24,17 @@ interface AccessData {
 const ReceiptDisplay: React.FC = () => {
   const { receiptId } = useParams<{ receiptId: string }>();
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
+
+  const banks = {
+    bradesco: { name: 'Bradesco', color: 'bg-red-600', textColor: 'text-white' },
+    bb: { name: 'Banco do Brasil', color: 'bg-yellow-500', textColor: 'text-black' },
+    sicredi: { name: 'Sicredi', color: 'bg-green-600', textColor: 'text-white' },
+    itau: { name: 'Itaú Unibanco', color: 'bg-orange-500', textColor: 'text-white' },
+    santander: { name: 'Santander', color: 'bg-red-500', textColor: 'text-white' },
+    caixa: { name: 'Caixa Econômica Federal', color: 'bg-blue-600', textColor: 'text-white' },
+    nubank: { name: 'Nubank', color: 'bg-purple-600', textColor: 'text-white' },
+    inter: { name: 'Banco Inter', color: 'bg-orange-600', textColor: 'text-white' }
+  };
 
   useEffect(() => {
     if (receiptId) {
@@ -86,6 +98,8 @@ const ReceiptDisplay: React.FC = () => {
     );
   }
 
+  const bankInfo = banks[receiptData.bank as keyof typeof banks] || banks.sicredi;
+  
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -104,8 +118,8 @@ const ReceiptDisplay: React.FC = () => {
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
         {/* Header do Banco */}
-        <div className="bg-green-600 text-white p-4 text-center">
-          <h1 className="text-xl font-bold">Banco Digital</h1>
+        <div className={`${bankInfo.color} ${bankInfo.textColor} p-4 text-center`}>
+          <h1 className="text-xl font-bold">{bankInfo.name}</h1>
           <p className="text-sm opacity-90">Comprovante de Transferência PIX</p>
         </div>
 
@@ -180,7 +194,7 @@ const ReceiptDisplay: React.FC = () => {
             Guarde-o para seus registros.
           </p>
           <p className="text-xs text-gray-400 mt-2">
-            Banco Digital • Instituição Financeira
+            {bankInfo.name} • Instituição Financeira
           </p>
         </div>
       </div>
