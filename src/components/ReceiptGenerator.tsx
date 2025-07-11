@@ -22,14 +22,14 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ onBack }) => {
   const { toast } = useToast();
 
   const banks = [
-    { id: 'bradesco', name: 'Bradesco', color: 'bg-red-600' },
-    { id: 'bb', name: 'Banco do Brasil', color: 'bg-yellow-500' },
-    { id: 'sicredi', name: 'Sicredi', color: 'bg-green-600' },
-    { id: 'itau', name: 'Itaú', color: 'bg-orange-500' },
-    { id: 'santander', name: 'Santander', color: 'bg-red-500' },
-    { id: 'caixa', name: 'Caixa Econômica', color: 'bg-blue-600' },
-    { id: 'nubank', name: 'Nubank', color: 'bg-purple-600' },
-    { id: 'inter', name: 'Banco Inter', color: 'bg-orange-600' }
+    { id: 'bradesco', name: 'Bradesco', color: 'bg-red-600', urlName: 'bradesco' },
+    { id: 'bb', name: 'Banco do Brasil', color: 'bg-yellow-500', urlName: 'bancodobrasil' },
+    { id: 'sicredi', name: 'Sicredi', color: 'bg-green-600', urlName: 'sicredi' },
+    { id: 'itau', name: 'Itaú', color: 'bg-orange-500', urlName: 'itau' },
+    { id: 'santander', name: 'Santander', color: 'bg-red-500', urlName: 'santander' },
+    { id: 'caixa', name: 'Caixa Econômica', color: 'bg-blue-600', urlName: 'caixa' },
+    { id: 'nubank', name: 'Nubank', color: 'bg-purple-600', urlName: 'nubank' },
+    { id: 'inter', name: 'Banco Inter', color: 'bg-orange-600', urlName: 'bancointer' }
   ];
 
   const generateRandomId = () => {
@@ -83,12 +83,21 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ onBack }) => {
   };
 
   const testReceipt = () => {
-    if (receiptId) {
-      window.open(`${window.location.origin}/receipt/${receiptId}`, '_blank');
+    if (receiptId && selectedBank) {
+      const bank = banks.find(b => b.id === selectedBank);
+      const bankName = bank?.urlName || 'banco';
+      window.open(`${window.location.origin}/${bankName}/receipt/${receiptId}`, '_blank');
     }
   };
 
-  const receiptUrl = receiptId ? `${window.location.origin}/receipt/${receiptId}` : '';
+  const getReceiptUrl = () => {
+    if (!receiptId || !selectedBank) return '';
+    const bank = banks.find(b => b.id === selectedBank);
+    const bankName = bank?.urlName || 'banco';
+    return `${window.location.origin}/${bankName}/receipt/${receiptId}`;
+  };
+
+  const receiptUrl = getReceiptUrl();
 
   return (
     <div className="min-h-screen p-4">
