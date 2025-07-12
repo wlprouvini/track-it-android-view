@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import RedirectHandler from "./components/RedirectHandler";
 import PixelHandler from "./components/PixelHandler";
 import ReceiptDisplay from "./components/ReceiptDisplay";
+import SupportButton from "./components/SupportButton";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <SupportButton />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
