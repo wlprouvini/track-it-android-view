@@ -1,14 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Copy, Link, Eye, Smartphone, Globe, Clock, Monitor, Receipt } from 'lucide-react';
+import { Copy, Link, Eye, Smartphone, Globe, Clock, Monitor, Receipt, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import LinkGenerator from '@/components/LinkGenerator';
 import AccessViewer from '@/components/AccessViewer';
 import PixelTracker from '@/components/PixelTracker';
 import ReceiptGenerator from '@/components/ReceiptGenerator';
+import VPNConnection from '@/components/VPNConnection';
 
 interface AccessData {
   id: string;
@@ -24,7 +26,7 @@ interface AccessData {
 }
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<'home' | 'generate' | 'view' | 'receipt'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'generate' | 'view' | 'receipt' | 'vpn'>('home');
   const [accessData, setAccessData] = useState<AccessData[]>([]);
   const { toast } = useToast();
 
@@ -84,6 +86,16 @@ const Index = () => {
     return (
       <div className="min-h-screen bg-gray-900 text-white">
         <ReceiptGenerator 
+          onBack={() => setActiveTab('home')} 
+        />
+      </div>
+    );
+  }
+
+  if (activeTab === 'vpn') {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <VPNConnection 
           onBack={() => setActiveTab('home')} 
         />
       </div>
@@ -159,8 +171,17 @@ const Index = () => {
           </Button>
 
           <Button 
-            onClick={() => setActiveTab('view')}
+            onClick={() => setActiveTab('vpn')}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6"
+            size="lg"
+          >
+            <Shield className="mr-2 h-5 w-5" />
+            VPN
+          </Button>
+
+          <Button 
+            onClick={() => setActiveTab('view')}
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white py-6"
             size="lg"
           >
             <Eye className="mr-2 h-5 w-5" />
