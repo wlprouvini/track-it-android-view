@@ -8,6 +8,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -24,11 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user);
       } catch (error) {
-        // Se estiver usando sistema local, verificar localStorage
-        const currentUser = localStorage.getItem('current-user');
-        if (currentUser) {
-          setUser(JSON.parse(currentUser));
-        }
+        console.error('Erro ao verificar usuário:', error);
       } finally {
         setLoading(false);
       }
@@ -39,6 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Escutar mudanças na autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
@@ -52,6 +50,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`
+        }
       });
       return { error };
     } catch (error) {
@@ -66,18 +67,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         password,
       });
-      
-      if (!error) {
-        // Se estiver usando sistema local, atualizar estado
-        const currentUser = localStorage.getItem('current-user');
-        if (currentUser) {
-          setUser(JSON.parse(currentUser));
-        }
-      }
-      
       return { error };
     } catch (error) {
       console.error('Erro no login:', error);
+      return { error };
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+      return { error };
+    } catch (error) {
+      console.error('Erro no login com Google:', error);
       return { error };
     }
   };
@@ -92,7 +99,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );
