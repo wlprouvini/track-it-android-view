@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Copy, Link, Eye, Smartphone, Globe, Clock, Monitor, Receipt } from 'lucide-react';
+import { Copy, Link, Eye, Smartphone, Globe, Clock, Monitor, Receipt, LogOut, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import LinkGenerator from '@/components/LinkGenerator';
 import AccessViewer from '@/components/AccessViewer';
 import PixelTracker from '@/components/PixelTracker';
 import ReceiptGenerator from '@/components/ReceiptGenerator';
+import AuthScreen from '@/components/AuthScreen';
 
 interface AccessData {
   id: string;
@@ -24,9 +26,27 @@ interface AccessData {
 }
 
 const Index = () => {
+  const { user, loading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<'home' | 'generate' | 'view' | 'receipt'>('home');
   const [accessData, setAccessData] = useState<AccessData[]>([]);
   const { toast } = useToast();
+
+  // Se ainda está carregando, mostrar loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não está logado, mostrar tela de autenticação
+  if (!user) {
+    return <AuthScreen />;
+  }
 
   // Carregar dados salvos do localStorage
   useEffect(() => {
@@ -70,6 +90,14 @@ const Index = () => {
     return () => clearInterval(interval);
   }, [accessData.length]);
 
+  const handleLogout = async () => {
+    await signOut();
+    toast({
+      title: "Logout realizado",
+      description: "Você foi desconectado com sucesso.",
+    });
+  };
+
   if (activeTab === 'generate') {
     return (
       <div className="min-h-screen bg-gray-900 text-white">
@@ -105,11 +133,27 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <div className="max-w-md mx-auto space-y-6">
-        {/* Header */}
+        {/* Header com informações do usuário */}
         <div className="text-center space-y-2">
-          <div className="flex items-center justify-center space-x-2">
-            <Smartphone className="h-8 w-8 text-blue-400" />
-            <h1 className="text-2xl font-bold">Mini IPLogger</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Smartphone className="h-8 w-8 text-blue-400" />
+              <h1 className="text-2xl font-bold">Mini IPLogger</h1>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 text-sm text-gray-400">
+                <User className="h-4 w-4" />
+                <span>{user.email}</span>
+              </div>
+              <Button
+                onClick={handleLogout}
+                variant="ghost"
+                size="icon"
+                className="text-gray-400 hover:text-white"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <p className="text-gray-400">Rastreamento de IP offline</p>
         </div>
