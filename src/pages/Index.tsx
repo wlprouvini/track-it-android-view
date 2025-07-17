@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,23 +32,7 @@ const Index = () => {
   const [accessData, setAccessData] = useState<AccessData[]>([]);
   const { toast } = useToast();
 
-  // Se ainda está carregando, mostrar loading
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p>Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Se não está logado, mostrar tela de autenticação
-  if (!user) {
-    return <AuthScreen />;
-  }
-
+  // Todos os hooks devem estar no topo, antes de qualquer return condicional
   // Carregar dados salvos do localStorage
   useEffect(() => {
     const savedData = localStorage.getItem('iplogger-data');
@@ -59,17 +44,6 @@ const Index = () => {
       }
     }
   }, []);
-
-  const clearData = () => {
-    localStorage.removeItem('iplogger-data');
-    localStorage.removeItem('iplogger-links');
-    localStorage.removeItem('iplogger-receipts');
-    setAccessData([]);
-    toast({
-      title: "Dados Limpos",
-      description: "Todos os dados de acesso foram removidos.",
-    });
-  };
 
   // Atualizar dados periodicamente para mostrar novos acessos
   useEffect(() => {
@@ -89,6 +63,34 @@ const Index = () => {
 
     return () => clearInterval(interval);
   }, [accessData.length]);
+
+  // Se ainda está carregando, mostrar loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não está logado, mostrar tela de autenticação
+  if (!user) {
+    return <AuthScreen />;
+  }
+
+  const clearData = () => {
+    localStorage.removeItem('iplogger-data');
+    localStorage.removeItem('iplogger-links');
+    localStorage.removeItem('iplogger-receipts');
+    setAccessData([]);
+    toast({
+      title: "Dados Limpos",
+      description: "Todos os dados de acesso foram removidos.",
+    });
+  };
 
   const handleLogout = async () => {
     await signOut();
