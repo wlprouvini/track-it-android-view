@@ -19,12 +19,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Verificar usuário atual
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    const checkUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        // Se estiver usando sistema local, verificar localStorage
+        const currentUser = localStorage.getItem('current-user');
+        if (currentUser) {
+          setUser(JSON.parse(currentUser));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
 
     // Escutar mudanças na autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -45,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       return { error };
     } catch (error) {
+      console.error('Erro no cadastro:', error);
       return { error };
     }
   };
@@ -55,8 +66,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         password,
       });
+      
+      if (!error) {
+        // Se estiver usando sistema local, atualizar estado
+        const currentUser = localStorage.getItem('current-user');
+        if (currentUser) {
+          setUser(JSON.parse(currentUser));
+        }
+      }
+      
       return { error };
     } catch (error) {
+      console.error('Erro no login:', error);
       return { error };
     }
   };
@@ -64,6 +85,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      setUser(null);
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
